@@ -1,0 +1,152 @@
+// Array berisi pertanyaan dan jawaban-jawabannya
+const questions = [
+  {
+    // Pertanyaan
+    question: "Bahasa apa yang berjalan di dalam browser web?",
+    // Jawaban-jawaban dengan teks dan indikator kebenaran
+    answers: [
+      { text: "Java", correct: false }, // Jawaban salah
+      { text: "HTML", correct: true },  // Jawaban benar
+      { text: "Python", correct: false }, // Jawaban salah
+      { text: "Dart", correct: false },  // Jawaban salah
+    ],
+  },
+  {
+    // Pertanyaan
+    question: "Apa yang diartikan CSS?",
+    // Jawaban-jawaban dengan teks dan indikator kebenaran
+    answers: [
+      { text: "Central Style Sheets", correct: false }, // Jawaban salah
+      { text: "Cascading Style Sheets", correct: true }, // Jawaban benar
+      { text: "Cascading Simple Sheets", correct: false }, // Jawaban salah
+      { text: "Cars SUV Style Sheets", correct: false }, // Jawaban salah
+    ],
+  },
+  // Pertanyaan dan jawaban-jawaban lainnya
+];
+
+// Referensi ke elemen HTML yang menampilkan pertanyaan
+const questionElement = document.getElementById("question");
+
+// Referensi ke elemen HTML yang berisi tombol-tombol jawaban
+const answerButtons = document.getElementById("answer-buttons");
+
+// Referensi ke elemen HTML untuk tombol 'Next'
+const nextButton = document.getElementById("next-btn");
+
+// Variabel untuk melacak indeks pertanyaan saat ini
+let currentQuestionIndex = 0;
+
+// Variabel untuk menyimpan skor pengguna
+let score = 0;
+
+// Fungsi untuk memulai kuis
+function startQuiz() {
+  // Mengatur indeks pertanyaan saat ini ke nilai awal
+  currentQuestionIndex = 0;
+  // Mengatur skor pengguna ke nilai awal
+  score = 0;
+  // Mengubah teks tombol 'Next' menjadi "Next"
+  nextButton.innerHTML = "Next";
+  // Menampilkan pertanyaan pertama
+  showQuestion();
+}
+
+// Fungsi untuk menampilkan pertanyaan
+function showQuestion() {
+  // Mengatur ulang tampilan
+  resetState();
+  // Mengambil pertanyaan saat ini dari array pertanyaan
+  let currentQuestion = questions[currentQuestionIndex];
+  // Menambahkan nomor pertanyaan ke dalam teks pertanyaan
+  let questionNo = currentQuestionIndex + 1;
+  questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+
+  // Menampilkan tombol jawaban untuk setiap jawaban
+  currentQuestion.answers.forEach((answer) => {
+    const button = document.createElement("button");
+    button.innerHTML = answer.text;
+    button.classList.add("btn");
+    answerButtons.appendChild(button);
+    // Jika jawaban tersebut benar, menambahkan atribut data dengan nilai benar
+    if (answer.correct) {
+      button.dataset.correct = answer.correct;
+    }
+    // Menambahkan event listener untuk menangani klik jawaban
+    button.addEventListener("click", selectAnswer);
+  });
+}
+
+// Fungsi untuk mengatur ulang tampilan
+function resetState() {
+  // Menyembunyikan tombol 'Next'
+  nextButton.style.display = "none";
+  // Menghapus semua tombol jawaban yang ada
+  while (answerButtons.firstChild) {
+    answerButtons.removeChild(answerButtons.firstChild);
+  }
+}
+
+// Fungsi untuk menangani pemilihan jawaban
+function selectAnswer(e) {
+  // Mendapatkan tombol yang dipilih oleh pengguna
+  const selectedBtn = e.target;
+  // Memeriksa apakah jawaban tersebut benar atau salah
+  const isCorrect = selectedBtn.dataset.correct === "true";
+  // Jika jawaban benar, menandai tombol tersebut sebagai jawaban yang benar dan menambahkan skor
+  if (isCorrect) {
+    selectedBtn.classList.add("correct");
+    score++;
+  } else {
+    // Jika jawaban salah, menandai tombol tersebut sebagai jawaban yang salah
+    selectedBtn.classList.add("incorrect");
+  }
+  // Menonaktifkan semua tombol jawaban setelah pengguna memilih jawaban
+  Array.from(answerButtons.children).forEach((button) => {
+    // Menandai tombol jawaban yang benar
+    if (button.dataset.correct === "true") {
+      button.classList.add("correct");
+    }
+    // Menonaktifkan tombol jawaban
+    button.disabled = true;
+  });
+  // Menampilkan tombol 'Next'
+  nextButton.style.display = "block";
+}
+
+// Fungsi untuk menampilkan skor
+function showScore() {
+  // Mengatur ulang tampilan
+  resetState();
+  // Menampilkan skor pengguna
+  questionElement.innerHTML = `Skor Anda ${score} dari ${questions.length}!`;
+  // Mengubah teks tombol 'Next' menjadi "Main Lagi"
+  nextButton.innerHTML = "Main Lagi";
+  // Menampilkan tombol 'Next'
+  nextButton.style.display = "block";
+}
+
+// Fungsi untuk menangani tombol 'Next'
+function handleNextButton() {
+  // Menambahkan indeks pertanyaan untuk melanjutkan ke pertanyaan berikutnya
+  currentQuestionIndex++;
+  // Jika masih ada pertanyaan berikutnya, menampilkan pertanyaan tersebut; jika tidak, menampilkan skor
+  if (currentQuestionIndex < questions.length) {
+    showQuestion();
+  } else {
+    showScore();
+  }
+}
+
+// Event listener untuk tombol 'Next'
+nextButton.addEventListener("click", () => {
+  // Jika masih ada pertanyaan berikutnya, menampilkan pertanyaan tersebut; jika tidak, memulai kuis dari awal
+  if (currentQuestionIndex < questions.length) {
+    handleNextButton();
+  } else {
+    startQuiz();
+  }
+});
+
+// Memulai kuis saat halaman dimuat
+startQuiz();
